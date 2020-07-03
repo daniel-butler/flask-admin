@@ -19,10 +19,7 @@ class GeoJSONField(JSONField):
         super(GeoJSONField, self).__init__(label, validators, **kwargs)
         self.web_srid = 4326
         self.srid = srid
-        if self.srid == -1:
-            self.transform_srid = self.web_srid
-        else:
-            self.transform_srid = self.srid
+        self.transform_srid = self.web_srid if self.srid == -1 else self.srid
         self.geometry_type = geometry_type.upper()
         self.session = session
 

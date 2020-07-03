@@ -169,7 +169,7 @@ class RedisCli(BaseView):
         """
         if not args:
             help = 'Usage: help <command>.\nList of supported commands: '
-            help += ', '.join(n for n in sorted(self.commands))
+            help += ', '.join(iter(sorted(self.commands)))
             return TextWrapper(help)
 
         cmd = args[0]

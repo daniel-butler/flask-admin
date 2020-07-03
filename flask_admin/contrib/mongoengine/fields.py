@@ -74,11 +74,7 @@ class MongoFileField(fields.FileField):
                 return
 
             if isinstance(self.data, FileStorage) and not is_empty(self.data.stream):
-                if not field.grid_id:
-                    func = field.put
-                else:
-                    func = field.replace
-
+                func = field.put if not field.grid_id else field.replace
                 func(self.data.stream,
                      filename=self.data.filename,
                      content_type=self.data.content_type)

@@ -184,10 +184,7 @@ class ModelView(BaseModelView):
 
             regex = parse_like_term(value)
 
-            stmt = []
-            for field in self._search_fields:
-                stmt.append({field: {'$regex': regex}})
-
+            stmt = [{field: {'$regex': regex}} for field in self._search_fields]
             if stmt:
                 if len(stmt) == 1:
                     queries.append(stmt[0])
@@ -196,16 +193,8 @@ class ModelView(BaseModelView):
 
         # Construct final query
         if queries:
-            if len(queries) == 1:
-                final = queries[0]
-            else:
-                final = {'$and': queries}
-
-            if query:
-                query = {'$and': [query, final]}
-            else:
-                query = final
-
+            final = queries[0] if len(queries) == 1 else {'$and': queries}
+            query = {'$and': [query, final]} if query else final
         return query
 
     def get_list(self, page, sort_column, sort_desc, search, filters,

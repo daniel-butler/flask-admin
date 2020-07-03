@@ -2573,7 +2573,7 @@ def test_export_csv():
     app, db, admin = setup()
     Model1, Model2 = create_models(db)
 
-    for x in range(5):
+    for _ in range(5):
         fill_db(db, Model1, Model2)
 
     view = CustomModelView(Model1, db.session, can_export=True,

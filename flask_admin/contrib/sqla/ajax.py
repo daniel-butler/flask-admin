@@ -90,7 +90,7 @@ def create_ajax_loader(model, session, name, field_name, options):
     if attr is None:
         raise ValueError('Model %s does not have field %s.' % (model, field_name))
 
-    if not is_relationship(attr) and not is_association_proxy(attr):
+    if not (is_relationship(attr) or is_association_proxy(attr)):
         raise ValueError('%s.%s is not a relation.' % (model, field_name))
 
     if is_association_proxy(attr):

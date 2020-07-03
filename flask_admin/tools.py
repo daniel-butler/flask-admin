@@ -59,9 +59,7 @@ def module_not_found(additional_depth=0):
             doing import, you should pass 1 for single additional level of depth
     """
     tb = sys.exc_info()[2]
-    if len(traceback.extract_tb(tb)) > (1 + additional_depth):
-        return False
-    return True
+    return len(traceback.extract_tb(tb)) <= 1 + additional_depth
 
 
 def rec_getattr(obj, attr, default=None):

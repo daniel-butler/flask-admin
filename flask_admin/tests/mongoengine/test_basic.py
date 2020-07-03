@@ -1185,7 +1185,7 @@ def test_export_csv():
                            endpoint='row_limit_2')
     admin.add_view(view)
 
-    for x in range(5):
+    for _ in range(5):
         fill_db(Model1, Model2)
 
     client = app.test_client()

@@ -149,7 +149,7 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
         args = getattr(g, '_admin_template_args', None)
 
         if args is None:
-            args = g._admin_template_args = dict()
+            args = g._admin_template_args = {}
 
         return args
 
@@ -225,10 +225,7 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
             if admin.url != '/':
                 url = '%s/%s' % (admin.url, self.endpoint)
             else:
-                if self == admin.index_view:
-                    url = '/'
-                else:
-                    url = '/%s' % self.endpoint
+                url = '/' if self == admin.index_view else '/%s' % self.endpoint
         else:
             if not url.startswith('/'):
                 url = '%s/%s' % (admin.url, url)
@@ -391,7 +388,7 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
 
     @property
     def _debug(self):
-        if not self.admin or not self.admin.app:
+        if not (self.admin and self.admin.app):
             return False
 
         return self.admin.app.debug
@@ -502,7 +499,7 @@ class Admin(object):
 
         self._views = []
         self._menu = []
-        self._menu_categories = dict()
+        self._menu_categories = {}
         self._menu_links = []
 
         if name is None:
@@ -699,7 +696,7 @@ class Admin(object):
 
     def _init_extension(self):
         if not hasattr(self.app, 'extensions'):
-            self.app.extensions = dict()
+            self.app.extensions = {}
 
         admins = self.app.extensions.get('admin', [])
 

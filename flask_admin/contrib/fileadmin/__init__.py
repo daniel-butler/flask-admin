@@ -524,10 +524,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
         if ext.startswith('.'):
             ext = ext[1:]
 
-        if self.allowed_extensions and ext not in self.allowed_extensions:
-            return False
-
-        return True
+        return not self.allowed_extensions or ext in self.allowed_extensions
 
     def is_file_editable(self, filename):
         """
@@ -543,10 +540,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
         if ext.startswith('.'):
             ext = ext[1:]
 
-        if not self.editable_extensions or ext not in self.editable_extensions:
-            return False
-
-        return True
+        return bool(self.editable_extensions and ext in self.editable_extensions)
 
     def is_in_folder(self, base_path, directory):
         """
@@ -590,15 +584,14 @@ class BaseFileAdmin(BaseView, ActionsMixin):
             :param kwargs:
                 Additional arguments
         """
-        if not path:
-            return self.get_url(endpoint, **kwargs)
-        else:
+        if path:
             if self._on_windows:
                 path = path.replace('\\', '/')
 
             kwargs['path'] = path
 
-            return self.get_url(endpoint, **kwargs)
+
+        return self.get_url(endpoint, **kwargs)
 
     def _get_file_url(self, path, **kwargs):
         """
@@ -610,11 +603,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
         if self._on_windows:
             path = path.replace('\\', '/')
 
-        if self.is_file_editable(path):
-            route = '.edit'
-        else:
-            route = '.download'
-
+        route = '.edit' if self.is_file_editable(path) else '.download'
         return self.get_url(route, path=path, **kwargs)
 
     def _normalize_path(self, path):
@@ -631,11 +620,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
             path = ''
         else:
             path = op.normpath(path)
-            if base_path:
-                directory = self._separator.join([base_path, path])
-            else:
-                directory = path
-
+            directory = self._separator.join([base_path, path]) if base_path else path
             directory = op.normpath(directory)
 
             if not self.is_in_folder(base_path, directory):
@@ -1126,7 +1111,7 @@ class BaseFileAdmin(BaseView, ActionsMixin):
 
         base_path, full_path, path = self._normalize_path(path)
 
-        if not self.is_accessible_path(path) or not self.is_file_editable(path):
+        if not (self.is_accessible_path(path) and self.is_file_editable(path)):
             flash(gettext('Permission denied.'), 'error')
             return redirect(self._get_dir_url('.index_view'))
 

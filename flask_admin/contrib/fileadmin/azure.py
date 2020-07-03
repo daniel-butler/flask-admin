@@ -112,10 +112,10 @@ class AzureStorage(object):
                 folders.add(folder_name)
 
         folders.discard(directory)
+        is_dir = True
         for folder in folders:
             name = folder.split(self.separator)[-1]
             rel_path = folder
-            is_dir = True
             size = 0
             last_modified = 0
             files.append((name, rel_path, is_dir, size, last_modified))

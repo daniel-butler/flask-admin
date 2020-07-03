@@ -80,10 +80,7 @@ class InlineBaseFormAdmin(object):
         # Convert form rules
         form_rules = getattr(self, 'form_rules', None)
 
-        if form_rules:
-            self._form_rules = rules.RuleSet(self, form_rules)
-        else:
-            self._form_rules = None
+        self._form_rules = rules.RuleSet(self, form_rules) if form_rules else None
 
     def get_form(self):
         """

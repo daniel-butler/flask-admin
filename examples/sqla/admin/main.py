@@ -15,7 +15,7 @@ from flask_admin.babel import gettext
 # Flask views
 @app.route('/')
 def index():
-    tmp = u"""
+    return u"""
 <p><a href="/admin/?lang=en">Click me to get to Admin! (English)</a></p>
 <p><a href="/admin/?lang=cs">Click me to get to Admin! (Czech)</a></p>
 <p><a href="/admin/?lang=de">Click me to get to Admin! (German)</a></p>
@@ -28,7 +28,6 @@ def index():
 <p><a href="/admin/?lang=zh_CN">Click me to get to Admin! (Chinese - Simplified)</a></p>
 <p><a href="/admin/?lang=zh_TW">Click me to get to Admin! (Chinese - Traditional)</a></p>
 """
-    return tmp
 
 
 @app.route('/favicon.ico')

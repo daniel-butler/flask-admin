@@ -185,9 +185,11 @@ class ModelView(BaseModelView):
 
     def get_pk_value(self, model):
         if self.model._meta.composite_key:
-            return tuple([
+            return tuple(
                 model._data[field_name]
-                for field_name in self.model._meta.primary_key.field_names])
+                for field_name in self.model._meta.primary_key.field_names
+            )
+
         return getattr(model, self._primary_key)
 
     def scaffold_list_columns(self):
@@ -205,7 +207,7 @@ class ModelView(BaseModelView):
         return columns
 
     def scaffold_sortable_columns(self):
-        columns = dict()
+        columns = {}
 
         for n, f in self._get_model_fields():
             if self.column_display_pk or type(f) != PrimaryKeyField:
@@ -244,21 +246,19 @@ class ModelView(BaseModelView):
         except AttributeError:
             model_class = attr.model
 
-        if model_class != self.model:
-            visible_name = '%s / %s' % (self.get_column_name(model_class.__name__),
-                                        self.get_column_name(attr.name))
-        else:
-            if not isinstance(name, string_types):
-                visible_name = self.get_column_name(attr.name)
-            else:
+        if model_class == self.model:
+            if isinstance(name, string_types):
                 visible_name = self.get_column_name(name)
 
+            else:
+                visible_name = self.get_column_name(attr.name)
+        else:
+            visible_name = '%s / %s' % (self.get_column_name(model_class.__name__),
+                                        self.get_column_name(attr.name))
         type_name = type(attr).__name__
-        flt = self.filter_converter.convert(type_name,
+        return self.filter_converter.convert(type_name,
                                             attr,
                                             visible_name)
-
-        return flt
 
     def is_valid_filter(self, filter):
         return isinstance(filter, filters.BasePeeweeFilter)
