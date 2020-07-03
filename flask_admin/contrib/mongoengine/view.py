@@ -342,9 +342,10 @@ class ModelView(BaseModelView):
         columns = {}
 
         for n, f in self._get_model_fields():
-            if type(f) in SORTABLE_FIELDS:
-                if self.column_display_pk or type(f) != mongoengine.ObjectIdField:
-                    columns[n] = f
+            if type(f) in SORTABLE_FIELDS and (
+                self.column_display_pk or type(f) != mongoengine.ObjectIdField
+            ):
+                columns[n] = f
 
         return columns
 
@@ -378,11 +379,7 @@ class ModelView(BaseModelView):
             :param name:
                 Either field name or field instance
         """
-        if isinstance(name, string_types):
-            attr = self.model._fields.get(name)
-        else:
-            attr = name
-
+        attr = self.model._fields.get(name) if isinstance(name, string_types) else name
         if attr is None:
             raise Exception('Failed to find field for filter: %s' % name)
 
@@ -397,11 +394,9 @@ class ModelView(BaseModelView):
 
         # Convert filter
         type_name = type(attr).__name__
-        flt = self.filter_converter.convert(type_name,
+        return self.filter_converter.convert(type_name,
                                             attr,
                                             visible_name)
-
-        return flt
 
     def is_valid_filter(self, filter):
         """
@@ -416,15 +411,13 @@ class ModelView(BaseModelView):
         """
             Create form from the model.
         """
-        form_class = get_form(self.model,
+        return get_form(self.model,
                               self.model_form_converter(self),
                               base_class=self.form_base_class,
                               only=self.form_columns,
                               exclude=self.form_excluded_columns,
                               field_args=self.form_args,
                               extra_fields=self.form_extra_fields)
-
-        return form_class
 
     def scaffold_list_form(self, widget=None, validators=None):
         """
@@ -641,7 +634,7 @@ class ModelView(BaseModelView):
         coll = request.args.get('coll')
         db = request.args.get('db', 'default')
 
-        if not pk or not coll or not db:
+        if not (pk and coll and db):
             abort(404)
 
         fs = gridfs.GridFS(get_db(db), coll)

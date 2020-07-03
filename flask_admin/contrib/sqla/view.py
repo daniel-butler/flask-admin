@@ -317,9 +317,9 @@ class ModelView(BaseModelView):
 
         self._search_fields = None
 
-        self._filter_joins = dict()
+        self._filter_joins = {}
 
-        self._sortable_joins = dict()
+        self._sortable_joins = {}
 
         if self.form_choices is None:
             self.form_choices = {}
@@ -448,7 +448,7 @@ class ModelView(BaseModelView):
             Return a dictionary of sortable columns.
             Key is column name, value is sort column/field.
         """
-        columns = dict()
+        columns = {}
 
         for p in self._get_model_iterator():
             if hasattr(p, 'columns'):
@@ -478,12 +478,12 @@ class ModelView(BaseModelView):
             If `column_sortable_list` is set, will use it. Otherwise, will call
             `scaffold_sortable_columns` to get them from the model.
         """
-        self._sortable_joins = dict()
+        self._sortable_joins = {}
 
         if self.column_sortable_list is None:
             return self.scaffold_sortable_columns()
         else:
-            result = dict()
+            result = {}
 
             for c in self.column_sortable_list:
                 if isinstance(c, tuple):
@@ -493,10 +493,9 @@ class ModelView(BaseModelView):
                             column_item, path_item = tools.get_field_with_path(self.model, item)
                             column.append(column_item)
                             path.append(path_item)
-                        column_name = c[0]
                     else:
                         column, path = tools.get_field_with_path(self.model, c[1])
-                        column_name = c[0]
+                    column_name = c[0]
                 else:
                     column, path = tools.get_field_with_path(self.model, c)
                     column_name = text_type(c)
@@ -816,13 +815,11 @@ class ModelView(BaseModelView):
                 if p.direction.name in ['MANYTOONE', 'MANYTOMANY']:
                     relations.add(p.key)
 
-        joined = []
-
-        for prop, name in self._list_columns:
-            if prop in relations:
-                joined.append(getattr(self.model, prop))
-
-        return joined
+        return [
+            getattr(self.model, prop)
+            for prop, name in self._list_columns
+            if prop in relations
+        ]
 
     # AJAX foreignkey support
     def _create_ajax_loader(self, name, options):
@@ -879,11 +876,7 @@ class ModelView(BaseModelView):
 
             column = sort_field if alias is None else getattr(alias, sort_field.key)
 
-            if sort_desc:
-                query = query.order_by(desc(column))
-            else:
-                query = query.order_by(column)
-
+            query = query.order_by(desc(column)) if sort_desc else query.order_by(column)
         return query, joins
 
     def _get_default_order(self):

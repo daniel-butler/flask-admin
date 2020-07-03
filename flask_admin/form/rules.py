@@ -103,10 +103,7 @@ class NestedRule(BaseRule):
             :param field_args:
                 Optional arguments that should be passed to template or the field
         """
-        result = []
-
-        for r in self.rules:
-            result.append(r(form, form_opts, field_args))
+        result = [r(form, form_opts, field_args) for r in self.rules]
 
         return Markup(self.separator.join(result))
 
@@ -351,11 +348,7 @@ class FieldSet(NestedRule):
             :param separator:
                 Child rule separator
         """
-        if header:
-            rule_set = [Header(header)] + list(rules)
-        else:
-            rule_set = list(rules)
-
+        rule_set = [Header(header)] + list(rules) if header else list(rules)
         super(FieldSet, self).__init__(rule_set, separator=separator)
 
 
@@ -418,5 +411,4 @@ class RuleSet(object):
         """
             Iterate through registered rules.
         """
-        for r in self.rules:
-            yield r
+        yield from self.rules

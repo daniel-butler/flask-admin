@@ -87,7 +87,7 @@ class FilterSmaller(BaseSQLAFilter):
 class FilterEmpty(BaseSQLAFilter, filters.BaseBooleanFilter):
     def apply(self, query, value, alias=None):
         if value == '1':
-            return query.filter(self.get_column(alias) == None)  # noqa: E711
+            return query.filter(self.get_column(alias) is None)
         else:
             return query.filter(self.get_column(alias) != None)  # noqa: E711
 

@@ -522,7 +522,11 @@ def get_form(model, converter,
 
             column, path = get_field_with_path(model, name, return_remote_proxy_attr=False)
 
-            if path and not (is_relationship(column) or is_association_proxy(column)):
+            if (
+                path
+                and not is_relationship(column)
+                and not is_association_proxy(column)
+            ):
                 raise Exception("form column is located in another table and "
                                 "requires inline_models: {0}".format(name))
 
@@ -603,7 +607,7 @@ class InlineModelConverter(InlineModelConverterBase):
                 if model is None:
                     raise Exception('Unknown inline model admin: %s' % repr(p))
 
-                attrs = dict()
+                attrs = {}
                 for attr in dir(p):
                     if not attr.startswith('_') and attr != 'model':
                         attrs[attr] = getattr(p, attr)
@@ -659,26 +663,28 @@ class InlineModelConverter(InlineModelConverterBase):
         reverse_prop = None
 
         for prop in target_mapper.iterate_properties:
-            if hasattr(prop, 'direction') and prop.direction.name in ('MANYTOONE', 'MANYTOMANY'):
-                if issubclass(model, prop.mapper.class_):
-                    reverse_prop = prop
-                    break
+            if (
+                hasattr(prop, 'direction')
+                and prop.direction.name in ('MANYTOONE', 'MANYTOMANY')
+                and issubclass(model, prop.mapper.class_)
+            ):
+                reverse_prop = prop
+                break
         else:
             raise Exception('Cannot find reverse relation for model %s' % info.model)
 
         # Find forward property
         forward_prop = None
 
-        if prop.direction.name == 'MANYTOONE':
-            candidate = 'ONETOMANY'
-        else:
-            candidate = 'MANYTOMANY'
-
+        candidate = 'ONETOMANY' if prop.direction.name == 'MANYTOONE' else 'MANYTOMANY'
         for prop in mapper.iterate_properties:
-            if hasattr(prop, 'direction') and prop.direction.name == candidate:
-                if prop.mapper.class_ == target_mapper.class_:
-                    forward_prop = prop
-                    break
+            if (
+                hasattr(prop, 'direction')
+                and prop.direction.name == candidate
+                and prop.mapper.class_ == target_mapper.class_
+            ):
+                forward_prop = prop
+                break
         else:
             raise Exception('Cannot find forward relation for model %s' % info.model)
 
@@ -740,7 +746,7 @@ class InlineModelConverter(InlineModelConverterBase):
         # Post-process form
         child_form = info.postprocess_form(child_form)
 
-        kwargs = dict()
+        kwargs = {}
 
         label = self.get_label(info, forward_prop_key)
         if label:

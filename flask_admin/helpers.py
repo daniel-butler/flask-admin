@@ -52,10 +52,12 @@ def is_required_form_field(field):
             WTForms field to check
     """
     from flask_admin.form.validators import FieldListInputRequired
-    for validator in field.validators:
-        if isinstance(validator, (DataRequired, InputRequired, FieldListInputRequired)):
-            return True
-    return False
+    return any(
+        isinstance(
+            validator, (DataRequired, InputRequired, FieldListInputRequired)
+        )
+        for validator in field.validators
+    )
 
 
 def is_form_submitted():

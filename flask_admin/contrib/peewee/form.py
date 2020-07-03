@@ -72,7 +72,7 @@ class InlineModelFormList(InlineFieldList):
         attr = getattr(self.model, self.prop)
         values = self.model.select().where(attr == model_id).execute()
 
-        pk_map = dict((str(getattr(v, self._pk)), v) for v in values)
+        pk_map = {str(getattr(v, self._pk)): v for v in values}
 
         # Handle request data
         for field in self.entries:
@@ -201,7 +201,7 @@ class InlineModelConverter(InlineModelConverterBase):
                 if model is None:
                     raise Exception('Unknown inline model admin: %s' % repr(p))
 
-                attrs = dict()
+                attrs = {}
 
                 for attr in dir(p):
                     if not attr.startswith('_') and attr != 'model':
@@ -243,10 +243,9 @@ class InlineModelConverter(InlineModelConverterBase):
         for field in get_meta_fields(info.model):
             field_type = type(field)
 
-            if field_type == ForeignKeyField:
-                if field.rel_model == model:
-                    reverse_field = field
-                    break
+            if field_type == ForeignKeyField and field.rel_model == model:
+                reverse_field = field
+                break
         else:
             raise Exception('Cannot find reverse relation for model %s' % info.model)
 

@@ -18,7 +18,7 @@ class AzureFileAdminTests(Base.FileAdminTests):
 
         self._container_name = 'fileadmin-tests-%s' % uuid4()
 
-        if not self._test_storage or not self._container_name:
+        if not (self._test_storage and self._container_name):
             raise SkipTest('AzureFileAdmin test credentials not set')
 
         client = azure.BlockBlobService(connection_string=self._test_storage)
